@@ -1,0 +1,142 @@
+
+
+const sendOtpBtn = document.querySelector(".send-otp-btn");
+const verifyBtn = document.querySelector(".verify-btn");
+const loginBtn = document.getElementById("loginBtn");
+const signupForm = document.getElementById("signup-form");
+const loginForm = document.getElementById("login-form");
+
+// Send OTP Handler
+sendOtpBtn.addEventListener("click", async (e) => {
+  e.preventDefault();
+  
+  sendOtpBtn.disabled = true;
+  sendOtpBtn.textContent = "Sending...";
+
+  try {
+    const formData = new FormData(signupForm);
+    const payload = Object.fromEntries(formData.entries());
+
+    const response = await axios.post("/api/v1/user/send-otp", payload);
+    
+    if (response.data.success) {
+      alert("OTP sent to your email.");
+      
+      // Show OTP field
+      document.querySelector(".otp-verify").style.display = "block";
+
+      // Countdown timer
+      let countdown = 30;
+      const originalText = "Send OTP Again";
+      const interval = setInterval(() => {
+        if (countdown <= 0) {
+          sendOtpBtn.disabled = false;
+          sendOtpBtn.textContent = originalText;
+          clearInterval(interval);
+        } else {
+          sendOtpBtn.textContent = `Wait (${countdown}s)`;
+          countdown--;
+        }
+      }, 1000);
+    } else {
+      alert(response.data.message || "Failed to send OTP");
+    }
+  } catch (err) {
+    const errorMessage = err.response?.data?.message || "Something went wrong";
+    alert(errorMessage);
+  } finally {
+    sendOtpBtn.disabled = false;
+    sendOtpBtn.textContent = "Send OTP";
+  }
+});
+
+// Verify OTP Handler
+verifyBtn.addEventListener("click", async (e) => {
+  e.preventDefault();
+
+  try {
+    const formData = new FormData(signupForm);
+    const payload = Object.fromEntries(formData.entries());
+
+    if (!payload.email || !payload.otp) {
+      alert("Please enter your email and OTP.");
+      return;
+    }
+
+    const response = await axios.post("/api/v1/user/verify-signup", payload);
+
+    if (response.data && response.data.success) {
+      alert("Verification successful!");
+      window.location.href = "/";
+    } else {
+      alert(response.data?.message || "Verification failed");
+    }
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || "Verification failed";
+    alert(errorMessage);
+  }
+});
+
+// Login Handler
+loginBtn.addEventListener("click", async (e) => {
+  e.preventDefault();
+  
+  try {
+    const formData = new FormData(loginForm);
+    const payload = Object.fromEntries(formData.entries());
+
+    const response = await axios.post("/api/v1/user/login", payload);
+
+    if (response.data.success) {
+      alert("Login successful!");
+      window.location.href = "/";
+    } else {
+      alert(response.data.message || "Login failed");
+    }
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || "Login failed";
+    alert(errorMessage);
+  }
+});
+
+// Custom Alert Function
+window.alert = function(message, timeout = 2500) {
+  const existingAlert = document.querySelector(".custom-alert");
+  if (existingAlert) existingAlert.remove();
+
+  const alert = document.createElement('div');
+  alert.classList.add('custom-alert');
+  alert.innerText = message;
+
+  alert.setAttribute('style', `
+    position: fixed;
+    top: 15%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #cec9ccc2;
+    color: black;
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(128, 128, 128, 0.25);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    z-index: 9999;
+    text-align: center;
+    opacity: 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  `);
+
+  document.body.appendChild(alert);
+  requestAnimationFrame(() => {
+    alert.style.opacity = "1";
+    alert.style.transform = "translate(-50%, -50%) scale(1.05)";
+  });
+
+  setTimeout(() => {
+    alert.style.opacity = "0";
+    alert.style.transform = "translate(-50%, -50%) scale(1)";
+    setTimeout(() => alert.remove(), 300);
+  }, timeout);
+};

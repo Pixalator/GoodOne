@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Paper Evaluator - Authentication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="/stylesheets/auth.css">
+  
+</head>
+<body>
+
+    <div class="auth-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>AI Paper Evaluator</h1>
+            <p>Plagiarism checks, creative marking, and more.</p>
+        </div>
+
+        <!-- Auth Message Area -->
+        <div id="auth-message" class="hidden"></div>
+
+        <!-- Toggle Buttons -->
+        <div id="toggle-buttons" class="toggle-buttons">
+            <button id="login-btn" class="active">Login</button>
+            <button id="signup-btn">Sign Up</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-form" class="form-container">
+            <form id="login-form-data" >
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" name="email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" placeholder="••••••••" required>
+                </div>
+                <div class="form-options">
+                    <div class="remember-me">
+                        <input id="remember-me" name="remember-me" type="checkbox">
+                        <label for="remember-me">Remember me</label>
+                    </div>
+                    <a href="#">Forgot password?</a>
+                </div>
+                <button type="submit" id="login-submit-btn" class="submit-btn">Log In</button>
+            </form>
+        </div>
+
+        <!-- Sign Up Form -->
+        <div id="signup-form" class="form-container hidden">
+            <form id="signup-form-data">
+                 <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" name="fullname" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email Address</label>
+                    <input type="email" id="signup-email" name="email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" name="password" placeholder="••••••••" required>
+                </div>
+                 <div class="form-group">
+                    <label for="signup-confirm-password">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" name="confirm-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" id="signup-submit-btn" class="submit-btn">Create Account</button>
+            </form>
+        </div>
+
+        <!-- OTP Verification Form -->
+        <div id="otp-form" class="form-container hidden">
+            <div class="header">
+                <h2>Verify Your Account</h2>
+                <p>Enter the 6-digit code sent to your email.</p>
+            </div>
+            <form id="otp-form-data">
+                <input type="hidden" id="otp-email" name="email" value="">
+                <div class="form-group">
+                    <label for="otp-input">Verification Code</label>
+                    <input type="text" id="otp-input" name="otp" maxlength="6" class="otp-input" placeholder="••••••" required>
+                </div>
+                <div class="resend-otp">
+                    <a href="#">Didn't receive code? Resend</a>
+                </div>
+                <button type="submit" id="otp-submit-btn" class="submit-btn">Verify & Create Account</button>
+            </form>
+        </div>
+    </div>
+    <script src="/scripts/auth.script.js"></script>
+</body>
+</html>

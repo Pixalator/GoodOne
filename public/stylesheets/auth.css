@@ -1,0 +1,220 @@
+/* General Body and Font Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+/* Main authentication container */
+.auth-container {
+    position: relative;
+    width: 100%;
+    max-width: 28rem; /* 448px */
+    margin: auto;
+    background-color: #ffffff;
+    border-radius: 1rem; /* 16px */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+}
+
+@media (min-width: 768px) {
+    .auth-container {
+        padding: 2.5rem;
+    }
+}
+
+/* Header Styles */
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    font-size: 1.875rem; /* 30px */
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.header h2 {
+    font-size: 1.5rem; /* 24px */
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.header p {
+    color: #6b7280;
+    margin-top: 0.5rem;
+}
+
+/* Login/Signup Toggle Buttons */
+.toggle-buttons {
+    display: flex;
+    background-color: #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.toggle-buttons button {
+    width: 50%;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: none;
+    background-color: transparent;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.toggle-buttons button.active {
+    background-color: #ffffff;
+    color: #4f46e5;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Form Styles */
+.form-container {
+    transition: all 0.5s ease-in-out;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    margin-top: 0.25rem;
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background-color: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    color: #111827;
+    box-sizing: border-box;
+}
+
+.form-group input::placeholder {
+    color: #9ca3af;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 1px #4f46e5;
+}
+
+/* OTP Input Specific Style */
+.otp-input {
+    text-align: center;
+    letter-spacing: 0.5em;
+    font-size: 1.125rem;
+}
+
+/* Form Options (Remember me / Forgot password) */
+.form-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+}
+
+.remember-me input {
+    height: 1rem;
+    width: 1rem;
+    border-color: #d1d5db;
+    border-radius: 0.25rem;
+    color: #4f46e5;
+}
+
+.remember-me label {
+    margin-left: 0.5rem;
+    font-size: 0.875rem;
+    color: #111827;
+}
+
+.form-options a, .resend-otp a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4f46e5;
+    text-decoration: none;
+}
+
+.form-options a:hover, .resend-otp a:hover {
+    text-decoration: underline;
+}
+
+.resend-otp {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+    background-color: #4f46e5;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+    background-color: #4338ca;
+}
+
+.submit-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.4);
+}
+
+/* Message Styles */
+#auth-message .success-message {
+    background-color: #d1fae5;
+    border: 1px solid #6ee7b7;
+    color: #065f46;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+#auth-message strong {
+    font-weight: bold;
+}
+
+/* Utility Class */
+.hidden {
+    display: none;
+}
