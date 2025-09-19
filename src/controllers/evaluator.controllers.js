@@ -1,7 +1,7 @@
 
 import { extractTextFromBuffer } from "../utils/ocr.utils";
 import { chunkText, cosineSimilarity } from "../utils/preProcessing.utils";
-
+import Ajv from "ajv";
 
 
 
@@ -38,6 +38,7 @@ export async function handleEvaluation(req, res) {
       model: "text-embedding-3-small",
       input: cleaned,
     });
+
     const embStudent = embeddingRespStudent.data[0].embedding;
 
     const embeddingRespRef = await client.embeddings.create({
@@ -143,11 +144,67 @@ export async function handleEvaluation(req, res) {
       console.warn("Validation failed:", validate.errors);
     }
 
-    // 6) Return result
-    return res.json({
-      success: true,
-      evaluation: finalResult,
-    });
+
+    // ... after validation and finalResult preparation ...
+
+    // 5b) Generate assignments based on weaknesses
+    let generatedQuestions = [];
+    if (finalResult?.feedback || finalResult?.breakdown) {
+      const weaknesses = finalResult.breakdown
+        ? Object.entries(finalResult.breakdown)
+            .filter(([_, score]) => score < 0.6) // example: <60% is weak
+            .map(([area]) => area)
+        : [];
+
+      const weaknessText =
+        weaknesses.length > 0
+          ? weaknesses.join(", ")
+          : "general conceptual understanding";
+
+      const assignmentsResponse = await client.chat.completions.create({
+        model: process.env.LLM_MODEL || "gemini-1.5-pro-latest",
+        messages: [
+          {
+            role: "system",
+            content: "You are a teacher who generates practice questions."
+          },
+          {
+            role: "user",
+            content: `The student's weaknesses are: ${weaknessText}.
+                      Generate 5 assignment-style questions that will help them improve.
+                      Return as a numbered list.`
+          }
+        ],
+        max_tokens: 400,
+        temperature: 0.7,
+      });
+
+      const assignmentRaw = assignmentsResponse.choices?.[0]?.message?.content || "";
+      generatedQuestions = assignmentRaw
+        .split("\n")
+        .filter(q => q.trim() !== "" && /^\d/.test(q.trim())) // keep only numbered lines
+        .map(q => q.replace(/^\d+\.\s*/, "").trim());
+    }
+
+    // 6) Return result with assignments included
+   const result = {
+  student: {
+    name: req.body.studentName,
+    rollNo: req.body.rollNo
+  },
+  evaluation: finalResult, // from your evaluation LLM call
+  assignments: {
+    generatedQuestions
+  },
+  meta: {
+    model: process.env.LLM_MODEL || "gemini-1.5-pro-latest",
+    timestamp: new Date().toISOString()
+  }
+};
+
+return res.json(result);
+
+
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: err.message || String(err) });

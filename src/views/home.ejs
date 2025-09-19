@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Paper Evaluator - Home</title>
+    <title>AI Answer Evaluator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -24,7 +24,7 @@
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <h1 class="text-2xl font-bold text-indigo-600">AI Paper Evaluator</h1>
+                        <h1 class="text-2xl font-bold text-indigo-600">AI Answer Evaluator</h1>
                     </div>
                 </div>
                 <div class="flex items-center">
@@ -44,87 +44,83 @@
         <header class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
                 <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                    Evaluate Your Paper
+                    Evaluate Answer Sheet
                 </h2>
                 <p class="mt-4 text-lg text-gray-500">
-                    Upload your document and provide the necessary details for a comprehensive evaluation.
+                    Upload the student's answer sheet and provide details for evaluation.
                 </p>
             </div>
         </header>
 
         <main class="mt-8">
             <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10 space-y-8">
+                <!-- Add form tag with an ID -->
+                <form id="evaluation-form">
+                    <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10 space-y-8">
 
-                    <!-- File Upload Section -->
-                    <div>
-                        <label class="block text-lg font-semibold text-gray-800 mb-2">Upload Document</label>
-                        <div id="file-drop-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md transition-all duration-300">
-                            <div class="space-y-1 text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <div class="flex text-sm text-gray-600">
-                                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-                                        <span>Upload a file</span>
-                                        <input id="file-upload" name="file-upload" type="file" class="sr-only">
-                                    </label>
-                                    <p class="pl-1">or drag and drop</p>
-                                </div>
-                                <p class="text-xs text-gray-500">
-                                    PDF, DOCX, TXT up to 10MB
-                                </p>
+                        <!-- Student Details -->
+                        <div class="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
+                            <div>
+                                <label for="studentName" class="block text-sm font-medium text-gray-700">Student Name</label>
+                                <input type="text" id="studentName" name="studentName" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="rollNo" class="block text-sm font-medium text-gray-700">Roll No</label>
+                                <input type="text" id="rollNo" name="rollNo" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             </div>
                         </div>
-                        <p id="file-name-display" class="mt-2 text-sm text-gray-500"></p>
-                    </div>
-
-                    <!-- Other Parameters Section -->
-                    <div class="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
-                        <div>
-                            <label for="paper-type" class="block text-sm font-medium text-gray-700">Paper Type</label>
-                            <select id="paper-type" name="paper-type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                                <option>Essay</option>
-                                <option selected>Research Paper</option>
-                                <option>Thesis</option>
-                                <option>Report</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="marking-scheme" class="block text-sm font-medium text-gray-700">Marking Scheme</label>
-                            <select id="marking-scheme" name="marking-scheme" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                                <option>Standard (Percentage)</option>
-                                <option>Grade-based (A, B, C)</option>
-                                <option>Creative Writing Rubric</option>
-                            </select>
-                        </div>
-                        <div class="sm:col-span-2">
-                             <label for="instructions" class="block text-sm font-medium text-gray-700">Specific Instructions</label>
+                        
+                        <!-- Reference Answer -->
+                         <div>
+                             <label for="reference" class="block text-sm font-medium text-gray-700">Reference Answer (Optional)</label>
                              <div class="mt-1">
-                                <textarea id="instructions" name="instructions" rows="4" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md p-2" placeholder="e.g., Focus on clarity and argument strength..."></textarea>
+                                <textarea id="reference" name="reference" rows="5" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md p-2" placeholder="Paste the reference/ideal answer here..."></textarea>
                              </div>
                         </div>
-                    </div>
 
-                    <!-- Submit Button -->
-                    <div class="pt-5">
-                        <div class="flex justify-end">
-                            <button type="submit" class="w-full sm:w-auto flex justify-center py-3 px-8 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                Evaluate Paper
-                            </button>
+                        <!-- File Upload Section -->
+                        <div>
+                            <label class="block text-lg font-semibold text-gray-800 mb-2">Upload Answer Sheet</label>
+                            <div id="file-drop-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md transition-all duration-300">
+                                <div class="space-y-1 text-center">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <div class="flex text-sm text-gray-600 justify-center">
+                                        <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                            <span>Upload a file</span>
+                                            <input id="file-upload" name="answerFile" type="file" class="sr-only" accept=".pdf,.png,.jpg,.jpeg" required>
+                                        </label>
+                                        <p class="pl-1">or drag and drop</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">
+                                        PDF, PNG, JPG, JPEG up to 10MB
+                                    </p>
+                                </div>
+                            </div>
+                            <p id="file-name-display" class="mt-2 text-sm text-gray-500"></p>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-5">
+                            <div class="flex justify-end">
+                                <button type="submit" class="w-full sm:w-auto flex justify-center py-3 px-8 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Evaluate Answer
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
         </main>
     </div>
     
     <script>
+        // --- Existing file drop-zone script ---
         const dropZone = document.getElementById('file-drop-zone');
         const fileInput = document.getElementById('file-upload');
         const fileNameDisplay = document.getElementById('file-name-display');
 
-        // Prevent default drag behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropZone.addEventListener(eventName, preventDefaults, false);
             document.body.addEventListener(eventName, preventDefaults, false);
@@ -135,7 +131,6 @@
             e.stopPropagation();
         }
 
-        // Highlight drop zone when item is dragged over it
         ['dragenter', 'dragover'].forEach(eventName => {
             dropZone.addEventListener(eventName, () => dropZone.classList.add('file-drop-zone-active'), false);
         });
@@ -144,7 +139,6 @@
             dropZone.addEventListener(eventName, () => dropZone.classList.remove('file-drop-zone-active'), false);
         });
 
-        // Handle dropped files
         dropZone.addEventListener('drop', handleDrop, false);
 
         function handleDrop(e) {
@@ -153,7 +147,6 @@
             handleFiles(files);
         }
 
-        // Handle file selection from input
         fileInput.addEventListener('change', function() {
             handleFiles(this.files);
         });
@@ -161,10 +154,15 @@
         function handleFiles(files) {
             if (files.length > 0) {
                 const file = files[0];
+                fileInput.files = files; 
                 fileNameDisplay.textContent = `Selected file: ${file.name}`;
             }
         }
     </script>
+    <!-- Link to the new script for handling form submission -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="script.js"></script>
 
 </body>
 </html>
+
