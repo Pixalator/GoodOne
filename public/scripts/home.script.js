@@ -1,70 +1,164 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Select the form by its ID
+    console.log("DOM fully loaded. AI Evaluator script is running.");
+
     const evaluationForm = document.getElementById('evaluation-form');
+    const fileInput = document.getElementById('file-upload');
+    const submitButton = document.getElementById('submit-btn');
 
-    // Add a submit event listener to the form
-    evaluationForm.addEventListener('submit', async (event) => {
-        // Prevent the default form submission behavior (which reloads the page)
-        event.preventDefault();
+    const textPlaceholder = document.getElementById('text-placeholder');
+    const textOutputWrapper = document.getElementById('text-output-wrapper');
+    const extractedTextOutput = document.getElementById('extracted-text-output');
 
-        // 1. Get references to all the form inputs
-        const studentNameInput = document.getElementById('studentName');
-        const rollNoInput = document.getElementById('rollNo');
-        const referenceInput = document.getElementById('reference');
-        const fileInput = document.getElementById('file-upload');
+    const evaluationOutputWrapper = document.getElementById('evaluation-output-wrapper');
+    const evaluationOutput = document.getElementById('evaluation-output');
 
-        // 2. Create a new FormData object
-        // This object is designed to handle form data, especially for file uploads.
-        const formData = new FormData();
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const dropZone = document.getElementById('file-drop-zone');
 
-        // 3. Append the data from the form to the FormData object
-        // The first argument is the 'key' (like in a JSON object), which your server will use to access the data.
-        // The second argument is the 'value'.
-        formData.append('studentName', studentNameInput.value);
-        formData.append('rollNo', rollNoInput.value);
-        formData.append('reference', referenceInput.value);
-        
-        // For files, we need to get the file object from the input's `files` collection
-        if (fileInput.files.length > 0) {
-            formData.append('answerFile', fileInput.files[0]);
-        } else {
-            // Handle case where no file is selected, if required
-            console.error("No file selected!");
-            alert("Please upload an answer sheet.");
-            return;
-        }
+    let extractedTextContent = null;
+    let extractedQnA = null;
 
-        // --- Example: How to send this data with Axios ---
-        
-        console.log('FormData object created. Ready to send.');
-
-        // For demonstration, let's log the key-value pairs
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}:`, value);
-        }
-        
-        const url = '/upload'; // Your backend API endpoint
-
-        try {
-            /*
-            // 4. Make the POST request using Axios
-            // The 'formData' object is passed directly as the request body.
-            // Axios will automatically set the correct 'Content-Type' header to 'multipart/form-data'.
-            const response = await axios.post(url, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-
-            console.log('Server response:', response.data);
-            alert('File uploaded and evaluation started successfully!');
-            */
-           
-           alert('FormData is ready! Check the console to see the data that would be sent.');
-
-        } catch (error) {
-            console.error('Error uploading file:', error);
-            alert('There was an error uploading the file.');
-        }
+    // --- File drop-zone handling ---
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
     });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.add('file-drop-zone-active'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.remove('file-drop-zone-active'), false);
+    });
+
+    dropZone.addEventListener('drop', handleDrop, false);
+    fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        handleFiles(dt.files);
+    }
+
+    function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+            fileInput.files = files; 
+            fileNameDisplay.textContent = `Selected file: ${file.name}`;
+        }
+    }
+
+    // --- Form submission ---
+evaluationForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    console.log("Form submission triggered.");
+
+    const file = fileInput.files[0];
+    if (!file) {
+        alert("Please select a file to extract text from.");
+        console.warn("Submit clicked without a file.");
+        return;
+    }
+
+    console.log(`File selected: ${file.name}, Type: ${file.type}`);
+    const originalButtonText = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = "Extracting text with AI...";
+
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/v1/evaluator/ocr", {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) throw new Error("Failed to extract text");
+        const result = await response.json();
+
+        extractedTextContent = result.text;
+
+        // Show extracted text preview
+        extractedTextOutput.textContent = extractedTextContent.trim()
+            ? extractedTextContent
+            : "[No text could be extracted from the document.]";
+
+        textPlaceholder.classList.add('hidden');
+        textOutputWrapper.classList.remove('hidden');
+
+        // Parse JSON for Q&A; fallback if not JSON
+        try {
+            extractedQnA = JSON.parse(extractedTextContent);
+        } catch {
+            extractedQnA = [
+                { question: "Student Submission", answer: extractedTextContent }
+            ];
+        }
+
+        submitButton.innerHTML = 'Text Extraction Complete';
+        submitButton.disabled = false;
+
+        console.log("Text extraction successful. Ready for evaluation.");
+    } catch (error) {
+        console.error('Error during file processing:', error);
+        alert('An error occurred while extracting text. Check the console.');
+
+        submitButton.innerHTML = originalButtonText;
+        submitButton.disabled = false;
+        textPlaceholder.classList.remove('hidden');
+        textOutputWrapper.classList.add('hidden');
+        extractedTextContent = null;
+        extractedQnA = null;
+    }
 });
+
+
+// --- Handle submission of extracted text ---
+submitExtractedTextButton.addEventListener('click', async () => {
+    if (!extractedQnA || !extractedTextContent) {
+        alert("No extracted text available to submit.");
+        console.warn("Submission clicked without extracted text.");
+        return;
+    }
+
+    const originalButtonText = submitExtractedTextButton.innerHTML;
+    submitExtractedTextButton.disabled = true;
+    submitExtractedTextButton.innerHTML = "Submitting data...";
+
+    try {
+        const response = await fetch("/api/v1/evaluator/save", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ extractedQnA }), // send parsed Q&A or raw text
+        });
+
+        if (!response.ok) throw new Error("Failed to save data");
+
+        // Optional: get ID or confirmation from backend
+        const result = await response.json();
+        console.log("Data saved successfully:", result);
+
+        // Redirect to results page
+        window.location.href = "/results";
+    } catch (error) {
+        console.error("Error during submission:", error);
+        alert("An error occurred while submitting the extracted text. Check the console.");
+
+        submitExtractedTextButton.innerHTML = originalButtonText;
+        submitExtractedTextButton.disabled = false;
+    }
+});
+
+
+
+
+
+})

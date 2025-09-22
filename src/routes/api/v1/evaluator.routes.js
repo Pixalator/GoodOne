@@ -1,12 +1,15 @@
 import express from "express"
-
+import { upload } from "../../../middlewares/multer.middleware.js"
 import { handleUserAuthentication } from "../../../middlewares/auth.middleware.js"
-import { handleEvaluation } from "../../../controllers/evaluator.controllers.js"
+import {  handleOcr,handleEvaluation } from "../../../controllers/evaluator.controllers.js"
 
 const render=express.Router()
 
 render.route("/evaluate")
-.post(handleUserAuthentication, upload.single("file"),handleEvaluation)
+.post(handleUserAuthentication,handleEvaluation)
+
+render.route("/ocr")
+.post(handleUserAuthentication, upload.single("file"),handleOcr)
 
 
 

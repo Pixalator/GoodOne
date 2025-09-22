@@ -33,6 +33,8 @@ import staticRoutes from "./routes/view-routes/static.routes.js"
 //Api routes name
 // import adminApiRoutes from "./routes/api/v1/admin.route.js"
 import userApiRoutes from "./routes/api/v1/user.routes.js"
+import evaluatorApiRoutes from "./routes/api/v1/evaluator.routes.js"
+
 import { handleUserAuthentication, isAdmin } from './middlewares/auth.middleware.js';
 
 app.set('view engine', 'ejs');
@@ -46,7 +48,7 @@ connectToMongoDb(`${process.env.MONGO_DB_URL}`);
 
 //API routes
 app.use("/api/v1/user",userApiRoutes)
-
+app.use("/api/v1/evaluator",evaluatorApiRoutes)
 // only activate when manipulating stocks and product
 // app.use("/api/v1/admin",adminApiRoutes)
   

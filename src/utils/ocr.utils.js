@@ -1,54 +1,118 @@
 
-import pdfParse from "pdf-parse";
-import { createWorker } from "tesseract.js";
+
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
+
+// OpenAI client
+// const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Gemini client
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const gemini = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 
+export async function extractText(filetype, fileBuffer) {
+  try {
+    const base64Data = fileBuffer.toString("base64");
 
+    const result = await gemini.generateContent([
+         {
+        text: `You are an AI text extractor specialized in academic questions and answers.
+               Extract all meaningful text from this document, and structure it ONLY as a list of Question-Answer pairs.
+               Format like this (only if image/pdf is about acedemic stuff ):
+               [
+                 { "question": "First question", "answer": "Answer text" },
+                 { "question": "Second question", "answer": "Answer text" }
+               ]
 
-// Simple worker initialization for Tesseract (we'll lazily initialize) //IMAGE OCR WORKER
-let tesseractWorker = null;
-async function getTesseractWorker() {
-if (!tesseractWorker) {
-tesseractWorker = createWorker();
-await tesseractWorker.load();
-await tesseractWorker.loadLanguage("eng");  
-await tesseractWorker.initialize("eng");
-}
-return tesseractWorker;
-}
+               Important:
+               - If the document does NOT contain any academic questions and answers, 
+                 respond exactly with: "sorry i am only designed to handle academic ques and answers".
+               - Do not return raw text, summaries, or anything other than structured Q&A.
+               - Make sure each Q&A pair is complete and concise.`
+      },
+      {
+        inlineData: {
+          mimeType: filetype, // e.g., "application/pdf", "image/png"
+          data: base64Data,
+        },
+      },
+    ]);
 
-
-// Helper: extract text from uploaded buffer depending on mime type
-export async function extractTextFromBuffer(buffer, mimetype, filename) {
-mime = (mimetype || "").toLowerCase();
-const name = (filename || "").toLowerCase();
-
-
-if (mime.includes("pdf") || name.endsWith(".pdf")) {
-// PDF parsing (If PDF INPUT)
-try {
-const data = await pdfParse(buffer);
-return data.text; // raw extracted text
-} catch (err) {
-console.error("pdf-parse failed:", err);
-throw new Error("Failed to parse PDF");
-}
-}
-
-
-if (mime.startsWith("image/") || name.match(/\.(png|jpg|jpeg|webp)$/)) {
-// Image OCR via Tesseract.js (If Image INPUT)
-try {
-const worker = await getTesseractWorker();
-const { data } = await worker.recognize(buffer);
-return data.text;
-} catch (err) {
-console.error("tesseract failed:", err);
-throw new Error("Failed to OCR image");
-}
+    return result.response.text(); // ✅ return text instead of res.json
+  } catch (err) {
+    console.error("Error extracting text:", err);
+    throw new Error("Failed to extract text");
+  }
 }
 
 
-// Fallback: treat buffer as text (If TEXT INPUT )
-return buffer.toString("utf8");
+export async function evaluateSubmission(extractedQnA) {
+  try {
+    if (!Array.isArray(extractedQnA) || extractedQnA.length === 0) {
+      return {
+        evaluation: null,
+        assignments: null,
+        message: "No Q&A data to evaluate."
+      };
+    }
+
+    const promptText = `
+You are an academic evaluator AI. Your task is to evaluate the student's submission based on the following criteria:
+
+1. Accuracy: How factually correct the answers are.
+2. Completeness: How well all required points are covered.
+3. Creativity: Originality and depth of ideas or examples.
+4. Grammar: Language correctness, clarity, and fluency.
+5. Plagiarism score: Estimate percentage of content that appears copied.
+
+Input is a JSON array of Question-Answer objects:
+
+${JSON.stringify(extractedQnA)}
+
+Please produce a JSON output exactly in this format:
+
+{
+  "evaluation": {
+    "accuracy": <number 0-100>,
+    "completeness": <number 0-100>,
+    "creativity": <number 0-100>,
+    "grammar": <number 0-100>,
+    "plagiarism_score": "<number>%",
+    "feedback": "<text feedback summarizing strengths, weaknesses, and suggestions>"
+  },
+  "assignments": {
+    "generatedQuestions": [
+      "<new question 1 based on the submission>",
+      "<new question 2 based on the submission>"
+    ]
+  }
+}
+
+Important:
+- Only return valid JSON.
+- Numeric scores 0-100.
+- Plagiarism score as percentage string (e.g., "8%").
+- Feedback should be concise, constructive, actionable.
+- Generated questions should relate to the submission.
+`;
+
+    const result = await gemini.generateContent([
+      { text: promptText }
+    ]);
+
+    // Clean output before parsing
+    let rawText = result.response.text();
+    rawText = rawText.replace(/```(?:json)?/g, "").trim();
+
+    console.log(result.response)
+    const evaluationJson = JSON.parse(rawText);
+
+
+    return evaluationJson;
+
+  } catch (err) {
+    console.error("Error during evaluation:", err);
+    throw new Error("Failed to evaluate submission.");
+  }
 }

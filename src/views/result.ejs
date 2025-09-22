@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detailed Evaluation Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+        .score-circle svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: rotate(-90deg);
+        }
+        .score-circle circle {
+            transition: stroke-dashoffset 1.5s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-2xl font-bold text-indigo-600">AI Answer Evaluator</h1>
+                    </div>
+                </div>
+                 <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <button onclick="window.location.href = 'home.html'" type="button" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <span>Evaluate New Answer</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="py-10">
+        <main class="mt-8">
+            <div id="results-container" class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <header>
+                    <div class="text-center">
+                        <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">Evaluation Report</h2>
+                        <p class="mt-4 text-lg text-gray-500" id="student-info-header">Report for [Student Name]</p>
+                    </div>
+                </header>
+
+                <!-- Score Breakdown Circles -->
+                <div class="mt-12">
+                    <h3 class="text-xl font-semibold text-gray-800 text-center mb-6">Score Breakdown</h3>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                        <!-- Accuracy -->
+                        <div class="bg-white rounded-2xl shadow-xl p-6">
+                            <h4 class="text-lg font-semibold text-gray-700">Accuracy</h4>
+                            <div class="score-circle mx-auto mt-4 flex items-center justify-center">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="54" stroke="#e6e6e6" stroke-width="10" fill="none" />
+                                    <circle id="accuracy-progress" cx="60" cy="60" r="54" stroke="#4f46e5" stroke-width="10" fill="none" stroke-linecap="round" />
+                                </svg>
+                                <span id="accuracy-text" class="absolute text-3xl font-bold text-indigo-600">0</span>
+                            </div>
+                        </div>
+                        <!-- Completeness -->
+                        <div class="bg-white rounded-2xl shadow-xl p-6">
+                            <h4 class="text-lg font-semibold text-gray-700">Completeness</h4>
+                            <div class="score-circle mx-auto mt-4 flex items-center justify-center">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="54" stroke="#e6e6e6" stroke-width="10" fill="none" />
+                                    <circle id="completeness-progress" cx="60" cy="60" r="54" stroke="#10b981" stroke-width="10" fill="none" stroke-linecap="round" />
+                                </svg>
+                                <span id="completeness-text" class="absolute text-3xl font-bold text-emerald-600">0</span>
+                            </div>
+                        </div>
+                        <!-- Creativity -->
+                        <div class="bg-white rounded-2xl shadow-xl p-6">
+                            <h4 class="text-lg font-semibold text-gray-700">Creativity</h4>
+                            <div class="score-circle mx-auto mt-4 flex items-center justify-center">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="54" stroke="#e6e6e6" stroke-width="10" fill="none" />
+                                    <circle id="creativity-progress" cx="60" cy="60" r="54" stroke="#f59e0b" stroke-width="10" fill="none" stroke-linecap="round" />
+                                </svg>
+                                <span id="creativity-text" class="absolute text-3xl font-bold text-amber-600">0</span>
+                            </div>
+                        </div>
+                        <!-- Grammar -->
+                        <div class="bg-white rounded-2xl shadow-xl p-6">
+                            <h4 class="text-lg font-semibold text-gray-700">Grammar</h4>
+                            <div class="score-circle mx-auto mt-4 flex items-center justify-center">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="54" stroke="#e6e6e6" stroke-width="10" fill="none" />
+                                    <circle id="grammar-progress" cx="60" cy="60" r="54" stroke="#ef4444" stroke-width="10" fill="none" stroke-linecap="round" />
+                                </svg>
+                                <span id="grammar-text" class="absolute text-3xl font-bold text-red-600">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overall Score and Plagiarism -->
+                 <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-2xl shadow-xl p-8 text-center">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Final Score</h3>
+                        <p id="overall-score" class="text-6xl font-bold text-indigo-600">0</p>
+                        <p class="text-lg text-gray-500 mt-1">out of 100</p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-xl p-8 text-center">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Plagiarism Score</h3>
+                        <p id="plagiarism-score" class="text-6xl font-bold text-red-500">0%</p>
+                        <p class="text-lg text-gray-500 mt-1">Similarity to external sources.</p>
+                    </div>
+                </div>
+
+                <!-- Feedback and Assignments -->
+                <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-2xl shadow-xl p-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">AI-Generated Feedback</h3>
+                        <p id="feedback-text" class="text-gray-600 leading-relaxed"></p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-xl p-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Suggested Assignments</h3>
+                        <ul id="assignments-list" class="space-y-4 list-disc list-inside text-gray-600"></ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // This is dummy data. In a real application, you would fetch this from your backend or pass it from the previous page.
+            const resultData = {
+              "evaluation": {
+                "accuracy": 90,
+                "completeness": 85,
+                "creativity": 70,
+                "grammar": 95,
+                "plagiarism_score": "0%",
+                "feedback": "The answers demonstrate a good understanding of the poem's central themes. The interpretations are largely accurate and well-articulated. However, the responses could benefit from more in-depth analysis and supporting evidence from the poem itself to strengthen the arguments. Consider exploring the symbolism and imagery used by the poet to enrich your analysis. While the grammar is excellent, exploring more nuanced interpretations might elevate the creativity score."
+              },
+              "assignments": {
+                "generatedQuestions": [
+                  "Analyze the use of imagery and symbolism in the poem to support your interpretation of the poet's message regarding introspection.",
+                  "Compare and contrast the poet's concept of 'sadness' with other interpretations of this emotion found in literature or philosophy."
+                ]
+              },
+              "student": {
+                  "name": "Priya Sharma",
+                  "rollNo": "CS1025"
+              }
+            };
+
+            populateResults(resultData);
+        });
+
+        function setCircleProgress(circleElement, textElement, score) {
+            const radius = circleElement.r.baseVal.value;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (score / 100) * circumference;
+
+            circleElement.style.strokeDasharray = `${circumference} ${circumference}`;
+            
+            // Animate the circle and the text count-up
+            setTimeout(() => {
+                circleElement.style.strokeDashoffset = offset;
+                let current = 0;
+                const interval = setInterval(() => {
+                    if (current >= score) {
+                        clearInterval(interval);
+                        textElement.textContent = score;
+                    } else {
+                        current++;
+                        textElement.textContent = current;
+                    }
+                }, 15);
+            }, 100);
+        }
+
+        function populateResults(data) {
+            const eval = data.evaluation;
+            const student = data.student;
+
+            document.getElementById('student-info-header').textContent = `Report for ${student.name} (Roll No: ${student.rollNo})`;
+            
+            // Set individual scores
+            setCircleProgress(document.getElementById('accuracy-progress'), document.getElementById('accuracy-text'), eval.accuracy);
+            setCircleProgress(document.getElementById('completeness-progress'), document.getElementById('completeness-text'), eval.completeness);
+            setCircleProgress(document.getElementById('creativity-progress'), document.getElementById('creativity-text'), eval.creativity);
+            setCircleProgress(document.getElementById('grammar-progress'), document.getElementById('grammar-text'), eval.grammar);
+
+            // Calculate and display overall score
+            const scores = [eval.accuracy, eval.completeness, eval.creativity, eval.grammar];
+            const overallScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+            document.getElementById('overall-score').textContent = overallScore;
+            
+            // Populate other fields
+            document.getElementById('plagiarism-score').textContent = eval.plagiarism_score;
+            document.getElementById('feedback-text').textContent = eval.feedback;
+
+            const assignmentsList = document.getElementById('assignments-list');
+            assignmentsList.innerHTML = '';
+            data.assignments.generatedQuestions.forEach(q => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="font-medium">${q}</span>`;
+                assignmentsList.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>

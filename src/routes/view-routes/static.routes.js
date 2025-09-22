@@ -10,6 +10,11 @@ render.get("/", handleUserAuthentication ,(req,res)=>{
     res.render("home")
 })
 
+render.get("/result", handleUserAuthentication ,(req,res)=>{
+    // console.log("from home",req.userID)
+    res.render("result")
+})
+
 render.get("/auth",(req,res)=>{
     // console.log("from home",req.userID)
     res.render("auth")
