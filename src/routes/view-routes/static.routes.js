@@ -10,7 +10,7 @@ render.get("/", handleUserAuthentication ,(req,res)=>{
     res.render("home")
 })
 
-render.get("/result", handleUserAuthentication ,(req,res)=>{
+render.get("/result/:sheetId", handleUserAuthentication ,(req,res)=>{
     // console.log("from home",req.userID)
     res.render("result")
 })

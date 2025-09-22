@@ -140,31 +140,27 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // This is dummy data. In a real application, you would fetch this from your backend or pass it from the previous page.
-            const resultData = {
-              "evaluation": {
-                "accuracy": 90,
-                "completeness": 85,
-                "creativity": 70,
-                "grammar": 95,
-                "plagiarism_score": "0%",
-                "feedback": "The answers demonstrate a good understanding of the poem's central themes. The interpretations are largely accurate and well-articulated. However, the responses could benefit from more in-depth analysis and supporting evidence from the poem itself to strengthen the arguments. Consider exploring the symbolism and imagery used by the poet to enrich your analysis. While the grammar is excellent, exploring more nuanced interpretations might elevate the creativity score."
-              },
-              "assignments": {
-                "generatedQuestions": [
-                  "Analyze the use of imagery and symbolism in the poem to support your interpretation of the poet's message regarding introspection.",
-                  "Compare and contrast the poet's concept of 'sadness' with other interpretations of this emotion found in literature or philosophy."
-                ]
-              },
-              "student": {
-                  "name": "Priya Sharma",
-                  "rollNo": "CS1025"
-              }
-            };
+     document.addEventListener("DOMContentLoaded", async () => {
+  // Extract sheetId from the current URL (/results/:sheetId)
+  const pathParts = window.location.pathname.split("/");
+  const sheetId = pathParts[pathParts.length - 1]; // last part of URL
 
-            populateResults(resultData);
-        });
+  console.log("Extracted sheetId:", sheetId);
+
+  try {
+    // Fetch the evaluation data from backend
+    const response = await fetch(`/api/v1/evaluator/result/${sheetId}`);
+    if (!response.ok) throw new Error("Failed to fetch evaluation data");
+
+    const resultData = await response.json();
+
+    // Call your existing function to render it
+    populateResults(resultData);
+  } catch (err) {
+    console.error("Error loading results:", err);
+    alert("Could not load results. Please try again later.");
+  }
+});
 
         function setCircleProgress(circleElement, textElement, score) {
             const radius = circleElement.r.baseVal.value;
@@ -189,35 +185,39 @@
             }, 100);
         }
 
-        function populateResults(data) {
-            const eval = data.evaluation;
-            const student = data.student;
+       function populateResults(data) {
+    const eval = data.evaluation;
+    const studentName = data.studentName;
+    const rollNo = data.rollNo;
 
-            document.getElementById('student-info-header').textContent = `Report for ${student.name} (Roll No: ${student.rollNo})`;
-            
-            // Set individual scores
-            setCircleProgress(document.getElementById('accuracy-progress'), document.getElementById('accuracy-text'), eval.accuracy);
-            setCircleProgress(document.getElementById('completeness-progress'), document.getElementById('completeness-text'), eval.completeness);
-            setCircleProgress(document.getElementById('creativity-progress'), document.getElementById('creativity-text'), eval.creativity);
-            setCircleProgress(document.getElementById('grammar-progress'), document.getElementById('grammar-text'), eval.grammar);
+    document.getElementById('student-info-header').textContent = `Report for ${studentName} (Roll No: ${rollNo})`;
 
-            // Calculate and display overall score
-            const scores = [eval.accuracy, eval.completeness, eval.creativity, eval.grammar];
-            const overallScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-            document.getElementById('overall-score').textContent = overallScore;
-            
-            // Populate other fields
-            document.getElementById('plagiarism-score').textContent = eval.plagiarism_score;
-            document.getElementById('feedback-text').textContent = eval.feedback;
+    // Set individual scores
+    setCircleProgress(document.getElementById('accuracy-progress'), document.getElementById('accuracy-text'), eval.accuracy);
+    setCircleProgress(document.getElementById('completeness-progress'), document.getElementById('completeness-text'), eval.completeness);
+    setCircleProgress(document.getElementById('creativity-progress'), document.getElementById('creativity-text'), eval.creativity);
+    setCircleProgress(document.getElementById('grammar-progress'), document.getElementById('grammar-text'), eval.grammar);
 
-            const assignmentsList = document.getElementById('assignments-list');
-            assignmentsList.innerHTML = '';
-            data.assignments.generatedQuestions.forEach(q => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span class="font-medium">${q}</span>`;
-                assignmentsList.appendChild(li);
-            });
-        }
+    // Calculate and display overall score
+    const scores = [eval.accuracy, eval.completeness, eval.creativity, eval.grammar];
+    const overallScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    document.getElementById('overall-score').textContent = overallScore;
+
+    // Populate other fields
+    document.getElementById('plagiarism-score').textContent = eval.plagiarism_score;
+    document.getElementById('feedback-text').textContent = eval.feedback;
+
+    const assignmentsList = document.getElementById('assignments-list');
+    assignmentsList.innerHTML = '';
+    if (data.assignments && Array.isArray(data.assignments.generatedQuestions)) {
+        data.assignments.generatedQuestions.forEach(q => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span class="font-medium">${q}</span>`;
+            assignmentsList.appendChild(li);
+        });
+    }
+}
+
     </script>
 </body>
 </html>

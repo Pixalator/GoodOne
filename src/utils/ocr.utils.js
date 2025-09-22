@@ -20,11 +20,8 @@ export async function extractText(filetype, fileBuffer) {
         text: `You are an AI text extractor specialized in academic questions and answers.
                Extract all meaningful text from this document, and structure it ONLY as a list of Question-Answer pairs.
                Format like this (only if image/pdf is about acedemic stuff ):
-               [
-                 { "question": "First question", "answer": "Answer text" },
-                 { "question": "Second question", "answer": "Answer text" }
-               ]
-
+                  "question": "First question", "answer": "Answer text" ,
+                  "question": "Second question", "answer": "Answer text" 
                Important:
                - If the document does NOT contain any academic questions and answers, 
                  respond exactly with: "sorry i am only designed to handle academic ques and answers".
@@ -39,7 +36,26 @@ export async function extractText(filetype, fileBuffer) {
       },
     ]);
 
-    return result.response.text(); // ✅ return text instead of res.json
+    let extractedText = result.response.text();
+    
+    // --- CLEANING STAGE ---
+    extractedText = extractedText.trim()
+                                 .replace(/^```(?:json)?/, '') // remove starting ``` or ```json
+                                 .replace(/```$/, '')          // remove ending ```
+                                 .trim();
+
+    // Remove wrapping quotes if present
+    if ((extractedText.startsWith('"') && extractedText.endsWith('"')) ||
+        (extractedText.startsWith("'") && extractedText.endsWith("'"))) {
+      extractedText = extractedText.slice(1, -1).trim();
+    }
+
+    // Optional: replace multiple spaces/newlines with single space
+    extractedText = extractedText.replace(/\r?\n+/g, '\n').replace(/[ \t]+/g, ' ');
+
+    console.log("Cleaned extracted text:", extractedText);
+
+    return extractedText;
   } catch (err) {
     console.error("Error extracting text:", err);
     throw new Error("Failed to extract text");
@@ -47,15 +63,15 @@ export async function extractText(filetype, fileBuffer) {
 }
 
 
-export async function evaluateSubmission(extractedQnA) {
+export async function evaluateSubmission(modifiedQnA) {
   try {
-    if (!Array.isArray(extractedQnA) || extractedQnA.length === 0) {
-      return {
-        evaluation: null,
-        assignments: null,
-        message: "No Q&A data to evaluate."
-      };
-    }
+    // if (!Array.isArray(modifiedQnA) || modifiedQnA.length === 0) {
+    //   return {
+    //     evaluation: null,
+    //     assignments: null,
+    //     message: "No Q&A data to evaluate."
+    //   };
+    // }
 
     const promptText = `
 You are an academic evaluator AI. Your task is to evaluate the student's submission based on the following criteria:
@@ -68,7 +84,7 @@ You are an academic evaluator AI. Your task is to evaluate the student's submiss
 
 Input is a JSON array of Question-Answer objects:
 
-${JSON.stringify(extractedQnA)}
+${JSON.stringify(modifiedQnA)}
 
 Please produce a JSON output exactly in this format:
 
@@ -100,15 +116,16 @@ Important:
     const result = await gemini.generateContent([
       { text: promptText }
     ]);
+    
+    console.log("evauluator response",result.response.text())
 
     // Clean output before parsing
     let rawText = result.response.text();
     rawText = rawText.replace(/```(?:json)?/g, "").trim();
 
-    console.log(result.response)
     const evaluationJson = JSON.parse(rawText);
 
-
+    console.log("evaluationJson",evaluationJson)
     return evaluationJson;
 
   } catch (err) {
